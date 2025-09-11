@@ -1,0 +1,61 @@
+inputs:
+  anthropic_api_key:
+    description: Anthropic API key for Claude
+    required: true
+
+runs:
+  using: composite
+
+  steps:
+    - shell: bash
+      run: |
+        gh pr checkout ${{ github.event.pull_request.number || github.event.issue.number }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+
+    - uses: anthropics/claude-code-action@v1
+      with:
+        anthropic_api_key: ${{ inputs.anthropic_api_key }}
+
+        prompt: |
+          REPO: ${{ github.repository }}
+          PR NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
+
+          Please conduct a thorough code review of this pull request.
+          Make sure to follow the guidelines in @${{ github.action_path }}/../../../.agents/rules/shared/code-review.md
+
+          Note: The PR branch is already checked out in the current working directory.
+
+          ${{
+            github.event.comment
+            && format('
+              User provided additional context for this review:
+              ```
+              {0}
+              ```
+            ', github.event.comment.body)
+            || ''
+          }}
+
+          Apply your standard review process, covering all relevant areas including code quality, documentation
+          accuracy, content quality, and structural organization according to your established review priorities.
+
+          Use `gh pr comment:*` for top-level comments.
+          Use `mcp__github_inline_comment__create_inline_comment` to highlight specific areas of concern.
+          Only your GitHub comments that you post will be seen,
+          so don't submit your review as a normal message, just as comments.
+          If the PR has already been reviewed, or there are no noteworthy changes,
+          post a brief note like "✅ Review complete - no issues found".
+
+        claude_args: |
+          --add-dir "${{ github.action_path }}/../../.."
+          --append-system-prompt "
+            Read @${{ github.action_path }}/../../../.agents/rules/shared/AGENTS.md for organizational guidelines.
+          "
+          --allowedTools "
+            mcp__github_ci__get_ci_status,
+            mcp__github_inline_comment__create_inline_comment,
+            Bash(gh pr comment:*),
+            Bash(gh pr diff:*),
+            Bash(gh pr view:*)
+          "

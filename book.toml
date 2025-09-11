@@ -1,0 +1,6 @@
+[book]
+language = "en"
+title = "Veecle Style Guide"
+
+[output.html]
+edit-url-template = "https://github.com/veecle/style-guide/edit/main/{path}"
