@@ -60,7 +60,7 @@ The templates automatically:
 
 #### Claude Reviews
 
-These workflows repository include automated Claude-powered reviews for pull requests.
+These workflows include automated Claude-powered reviews for pull requests.
 The Claude review workflow:
 
 - Automatically triggers on opened and ready-for-review pull requests
