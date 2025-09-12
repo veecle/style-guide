@@ -8,22 +8,43 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     permissions:
       contents: read
+      pages: read
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: taiki-e/install-action@mdbook
 
+      - id: pages
+        uses: actions/configure-pages@v5
+
       - run: mdbook build
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-pages-artifact@v3
         with:
-          name: book
           path: book
-          if-no-files-found: error
-          retention-days: 1
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    if: github.ref == 'refs/heads/main'
+
+    needs: build
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
