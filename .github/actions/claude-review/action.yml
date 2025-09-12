@@ -26,6 +26,11 @@ runs:
 
           Note: The PR branch is already checked out in the current working directory.
 
+          IMPORTANT: Before starting your review, use `gh pr view --json title,body,files,additions,deletions,comments`
+          to read details including existing comments on this PR.
+          Check for any issues that have already been identified by previous reviews.
+          Only comment on new issues that haven't been previously noted.
+
           ${{
             github.event.comment
             && format('
@@ -44,8 +49,8 @@ runs:
           Use `mcp__github_inline_comment__create_inline_comment` to highlight specific areas of concern.
           Only your GitHub comments that you post will be seen,
           so don't submit your review as a normal message, just as comments.
-          If the PR has already been reviewed, or there are no noteworthy changes,
-          post a brief note like "✅ Review complete - no issues found".
+          If all issues have been addressed or already noted,
+          post a brief note like "✅ Review complete - no new issues found".
 
         claude_args: |
           --add-dir "${{ github.action_path }}/../../.."
