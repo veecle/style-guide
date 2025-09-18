@@ -8,8 +8,21 @@ runs:
 
   steps:
     - shell: bash
+      id: checkout-pr
       run: |
         gh pr checkout ${{ github.event.pull_request.number || github.event.issue.number }}
+
+        # Extract just the file path from the workflow ref (format: owner/repo/.github/workflows/file.yml@ref).
+        workflow_file_path="$(
+          echo "${{ github.workflow_ref }}" | sed -E 's|.*/.github/workflows/([^@]*).*|.github/workflows/\1|'
+        )"
+
+        if gh pr diff --name-only | grep -F "$workflow_file_path"; then
+          echo "workflow-changed=true" >> $GITHUB_OUTPUT
+          echo "::notice::Current workflow file ($workflow_file_path) changed - skipping review"
+        else
+          echo "workflow-changed=false" >> $GITHUB_OUTPUT
+        fi
       env:
         GH_TOKEN: ${{ github.token }}
 
@@ -18,6 +31,8 @@ runs:
         GH_API_COMMENTS_COMMAND: >-
           ${{ github.action_path }}/gh-pr-comments.sh
           ${{ github.event.pull_request.number || github.event.issue.number }}
+      # `claude-code-action` fails if the workflow file changes.
+      if: steps.checkout-pr.outputs.workflow-changed != 'true'
       with:
         anthropic_api_key: ${{ inputs.anthropic_api_key }}
 
