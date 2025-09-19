@@ -44,7 +44,8 @@ Apply relevant areas based on repository content type - code repositories focus 
 - **Code spacing**: Ensure logical separation of code blocks
 - **Comments**: Verify comments explain reasoning, not redundant information
 - **Text files**: Ensure files end with trailing newline
-  - You **must** detect this only based on whether you see "No newline at end of file" in the diff output, you cannot tell whether it is correct just from reading the file
+  - You **must** detect this only based on whether you see "No newline at end of file" in the diff output.
+  - You cannot tell whether it is correct just from reading the file.
 
 ### Documentation Accuracy
 - **When documentation includes command examples**: Validate CLI commands by testing them in the appropriate environment (e.g., OS, shell, toolchain version) where feasible, and verify they work as documented for the described use cases.
