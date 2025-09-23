@@ -4,4 +4,4 @@
 - [Rust](./rust.md)
 - [Markdown](./markdown.md)
 - [General Writing](./writing.md)
-- [Git Commits](./commits.md)
+- [Git](./git.md)
