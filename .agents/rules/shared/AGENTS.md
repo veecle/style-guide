@@ -12,7 +12,7 @@ When creating or editing any content, **always consult these primary sources**:
 
 ### When to Reference Specific Handbook Sections
 
-- **For git workflows:** Reference @../../../src/commits.md
+- **For git workflows:** Reference @../../../src/git.md
 - **For Rust projects:** Reference @../../../src/rust.md
 - **For Markdown text (including Rust doc-comments):** Reference @../../../src/markdown.md
 

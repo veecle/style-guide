@@ -1,3 +1,12 @@
+# Git
+
+## `.gitignore`
+
+Repository `.gitignore` files should contain only entries directly related to that repository's content, such as `target/` for Rust projects or `book/` for mdBook projects.
+User-specific entries like IDE configuration or system files like `.DS_Store` should be added to the user's global `.gitignore` (see [`man gitignore`][] for more details; this file is typically located at `~/.config/git/ignore`).
+
+[`man gitignore`]: https://git-scm.com/docs/gitignore
+
 ## Creating commits
 
 Changes to code require:
