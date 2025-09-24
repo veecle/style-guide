@@ -26,6 +26,9 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
 
+    - shell: bash
+      run: mkdir -p "${{ runner.temp }}/claude-tmp"
+
     - uses: anthropics/claude-code-action@v1
       env:
         GH_API_COMMENTS_COMMAND: >-
@@ -69,7 +72,10 @@ runs:
           Apply your standard review process, covering all relevant areas including code quality, documentation
           accuracy, content quality, and structural organization according to your established review priorities.
 
-          Use `gh pr comment:*` for top-level comments.
+          Use `${{ runner.temp }}/claude-tmp` to store temporary files
+
+          To send top-level comments write them to a temporary file first,
+          then use `gh pr comment --body-file the-temp-file.txt` (avoids shell backtick/quote escaping issues).
           Use `mcp__github_inline_comment__create_inline_comment` to highlight specific areas of concern.
           Only your GitHub comments that you post will be seen,
           so don't submit your review as a normal message, just as comments.
@@ -78,6 +84,7 @@ runs:
 
         claude_args: |
           --add-dir "${{ github.action_path }}/../../.."
+          --add-dir "${{ runner.temp }}/claude-tmp"
           --append-system-prompt "
             Read @${{ github.action_path }}/../../../.agents/rules/shared/AGENTS.md for organizational guidelines.
           "
@@ -90,4 +97,5 @@ runs:
             Bash(gh pr diff:*),
             Bash(gh pr view:*),
             Bash(${{ env.GH_API_COMMENTS_COMMAND }}),
+            Write,
           "
