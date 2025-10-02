@@ -43,9 +43,17 @@ Apply relevant areas based on repository content type - code repositories focus 
 - **Naming conventions**: Check for clear, non-abbreviated variable and function names
 - **Code spacing**: Ensure logical separation of code blocks
 - **Comments**: Verify comments explain reasoning, not redundant information
-- **Text files**: Ensure files end with trailing newline
-  - You **must** detect this only based on whether you see "No newline at end of file" in the diff output.
-  - You cannot tell whether it is correct just from reading the file.
+- **Text files - Trailing newline detection**:
+  - **CRITICAL**: You can ONLY detect missing trailing newlines by looking for the exact string `\ No newline at end of file` in git diff output
+  - **DO NOT flag files as missing trailing newlines based on**:
+    - Reading the file content directly
+    - The number of lines in the diff
+    - Whether the file is newly created
+    - Any other heuristic
+  - **Examples of CORRECT detection**:
+    - ✅ File HAS trailing newline (do not flag): diff shows `+content` without `\ No newline at end of file`
+    - ❌ File MISSING trailing newline (flag it): diff shows `+content` followed by `\ No newline at end of file`
+  - If you do not see `\ No newline at end of file` in the diff, the file is correct and should NOT be flagged
 
 ### Documentation Accuracy
 - **When documentation includes command examples**: Validate CLI commands by testing them in the appropriate environment (e.g., OS, shell, toolchain version) where feasible, and verify they work as documented for the described use cases.
