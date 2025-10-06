@@ -17,14 +17,22 @@
 
 ## Review Approach
 
-**Context Verification:**
-Always begin each review with a brief 3-4 line factual summary of what the PR changes, without praise or assessment.
-This verifies correct interpretation of the changes and indicates review completion.
-Format as:
-```
-## Change Summary
-[Factual description of changes and their purpose]
-```
+**Review Workflow:**
+1. **Check for issue references** in the commit message or PR (e.g., `Closes: DEV-123`, `Fixes #456`)
+2. **Retrieve issue context** (if references exist):
+   - Use `mcp__linear-server__get_issue` for Linear issues
+   - Use `gh issue view` for GitHub issues
+   - Review the issue requirements and acceptance criteria
+3. **Write Change Summary** as the first section of your review:
+   - Provide a brief 3-4 line factual summary of what the PR changes
+   - Verify changes align with issue requirements (if applicable)
+   - Note any divergence from the issue description
+   - Use no praise or assessment language
+   - Format as:
+     ```
+     ## Change Summary
+     [Factual description of changes and their purpose]
+     ```
 
 **Comment Rules:**
 - Only comment when there is a specific problem that needs fixing
