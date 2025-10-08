@@ -75,6 +75,7 @@ Apply relevant areas based on repository content type - code repositories focus 
 - **Consistency**: Use consistent terminology and formatting throughout
 - **Examples**: Include concrete examples for complex procedures
 - **Cross-references**: Related documentation sections should link appropriately when interconnected documentation exists
+- **AI Agent Context**: When changes affect workflows, practices, or introduce new patterns, verify that relevant sections of `AGENTS.md` or `.agents/rules` are updated to reflect the changes (if these files exist)
 
 ### Structure & Organization
 - **Logical Flow**: Changes maintain sensible organization (applies to both code structure and documentation organization)

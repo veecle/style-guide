@@ -15,6 +15,7 @@ When creating or editing any content, **always consult these primary sources**:
 - **For git workflows:** Reference @../../../src/git.md
 - **For Rust projects:** Reference @../../../src/rust.md
 - **For Markdown text (including Rust doc-comments):** Reference @../../../src/markdown.md
+- **For AI agent context structure:** Reference @../../../src/agents.md
 
 ## Code Review Integration
 
