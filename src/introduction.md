@@ -159,6 +159,7 @@ The trailing newline also makes concatenating files work properly, and can reduc
 
 You can configure most text editors to help adhere to this convention.
 Consider configuring projects with [EditorConfig](https://editorconfig.org/) to help adhere to this convention automatically.
+[`editorconfig-checker`](https://github.com/editorconfig-checker/editorconfig-checker) can be useful in CI to validate this.
 
 ## Scripts
 
