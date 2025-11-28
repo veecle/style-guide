@@ -1,0 +1,46 @@
+runs:
+  using: composite
+
+  steps:
+    - uses: actions/github-script@v8
+      with:
+        script: |
+          const comments = await github.paginate(github.rest.issues.listComments, {
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.payload.pull_request?.number || context.payload.issue.number,
+          })
+
+          // Filter to only claude[bot] comments and sort by creation date (oldest first).
+          const claudeComments = comments
+            .filter(comment => comment.user.login === 'claude[bot]')
+            .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+
+          // Also grab all the comments that triggered reviews.
+          const triggerComments = comments
+            .filter(comment => comment.body.includes('/claude-review'))
+
+          // Skip the last (most recent) claude comment.
+          const commentsToMinimize = claudeComments.slice(0, -1).concat(triggerComments)
+
+          console.log(`Found ${claudeComments.length} claude[bot] comments`)
+          console.log(`Found ${triggerComments.length} /claude-review comments`)
+          console.log(`Minimizing ${commentsToMinimize.length} old comments`)
+
+          for (const comment of commentsToMinimize) {
+            try {
+              await github.graphql(`
+                mutation($id: ID!, $classifier: ReportedContentClassifiers!) {
+                  minimizeComment(input: { subjectId: $id, classifier: $classifier }) {
+                    clientMutationId
+                  }
+                }
+              `, {
+                id: comment.node_id,
+                classifier: 'OUTDATED'
+              })
+              console.log(`Minimized comment ${comment.id}`)
+            } catch (error) {
+              console.error(`Failed to minimize comment ${comment.id}:`, error.message)
+            }
+          }
