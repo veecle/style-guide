@@ -2,6 +2,13 @@
 
 set -eu
 
+# Helper to run jq on a string (avoids shell-dependent echo behavior).
+jqs() {
+  string="$1"
+  shift
+  printf '%s\n' "$string" | jq "$@"
+}
+
 # Map reaction types to emoji.
 reaction_emoji() {
   case "$1" in
@@ -38,7 +45,7 @@ format_comment() {
   echo ""
 
   # Print the comment body as a blockquote.
-  echo "$body" | sed "s/^/${indent}> /"
+  printf '%s\n' "$body" | sed "s/^/${indent}> /"
   echo ""
 
   # Fetch and format reactions.
@@ -53,7 +60,7 @@ format_comment() {
 
     # Format reactions with emoji and users.
     first=true
-    echo "$reactions" | jq -r '.[] | "\(.content):\(.users | join(","))"' | while IFS=: read -r reaction_type users; do
+    jqs "$reactions" -r '.[] | "\(.content):\(.users | join(","))"' | while IFS=: read -r reaction_type users; do
       emoji=$(reaction_emoji "$reaction_type")
       if [ "$first" = true ]; then
         first=false
@@ -79,21 +86,18 @@ all_comments=$(gh api "repos/{owner}/{repo}/pulls/$1/comments" --jq '.[] | {
   in_reply_to_id: .in_reply_to_id
 }')
 
-# Get only top-level comments (not replies).
-top_level_comments=$(echo "$all_comments" | jq -c 'select(.in_reply_to_id == null)')
-
 # Track the current file to group comments.
 current_file=""
 
-# Process each top-level comment.
-echo "$top_level_comments" | while IFS= read -r comment; do
+# Process each top-level comment (not replies).
+jqs "$all_comments" -c 'select(.in_reply_to_id == null)' | while IFS= read -r comment; do
   [ -z "$comment" ] && continue
 
-  comment_id=$(echo "$comment" | jq -r '.id')
-  file_path=$(echo "$comment" | jq -r '.path')
-  user=$(echo "$comment" | jq -r '.user_login')
-  body=$(echo "$comment" | jq -r '.body')
-  diff_hunk=$(echo "$comment" | jq -r '.diff_hunk')
+  comment_id=$(jqs "$comment" -r '.id')
+  file_path=$(jqs "$comment" -r '.path')
+  user=$(jqs "$comment" -r '.user_login')
+  body=$(jqs "$comment" -r '.body')
+  diff_hunk=$(jqs "$comment" -r '.diff_hunk')
 
   # Print the file header if it changed.
   if [ "$file_path" != "$current_file" ]; then
@@ -108,7 +112,7 @@ echo "$top_level_comments" | while IFS= read -r comment; do
   # Print the diff hunk first (code context).
   if [ "$diff_hunk" != "null" ]; then
     echo '```diff'
-    echo "$diff_hunk"
+    printf '%s\n' "$diff_hunk"
     echo '```'
     echo ""
   fi
@@ -117,14 +121,12 @@ echo "$top_level_comments" | while IFS= read -r comment; do
   format_comment "$comment_id" "$user" "$body" "false"
 
   # Find and output replies to this comment.
-  replies=$(echo "$all_comments" | jq -c "select(.in_reply_to_id == $comment_id)")
-
-  echo "$replies" | while IFS= read -r reply; do
+  jqs "$all_comments" -c "select(.in_reply_to_id == $comment_id)" | while IFS= read -r reply; do
     [ -z "$reply" ] && continue
 
-    reply_id=$(echo "$reply" | jq -r '.id')
-    reply_user=$(echo "$reply" | jq -r '.user_login')
-    reply_body=$(echo "$reply" | jq -r '.body')
+    reply_id=$(jqs "$reply" -r '.id')
+    reply_user=$(jqs "$reply" -r '.user_login')
+    reply_body=$(jqs "$reply" -r '.body')
 
     format_comment "$reply_id" "$reply_user" "$reply_body" "true"
   done
