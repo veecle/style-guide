@@ -102,3 +102,10 @@ runs:
             Bash(${{ env.GH_API_COMMENTS_COMMAND }}),
             Write,
           "
+
+        settings: |
+          {
+            "env": {
+              "MAX_THINKING_TOKENS": "4000"
+            }
+          }
