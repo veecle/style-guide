@@ -32,7 +32,11 @@ Typically, code blocks and spans are subject to special treatment because of the
 
 This special treatment is often undesirable for non-literal content.
 
-#### Console sessions
+Code blocks can also add a language identifier that describes the block content.
+Some Markdown renderers use the language identifier for purposes such as syntax highlighting.
+Code blocks should define a language identifier when a suitable identifier exists.
+
+#### Console sessions and scripts
 
 When documenting console usage, consider using syntax highlighting to help users identify what must be typed on the console and what is program output.
 
@@ -53,3 +57,8 @@ For example:
 Hit:1 http://archive.ubuntu.com/ubuntu focal InRelease
 Reading package lists... Done
 ```
+
+Note that the `console` language identifier is mostly about differentiating keyboard input from program output by using prompts.
+Including prompts makes copying and pasting from documentation require more effort.
+Consider not showing prompts and not using the `console` language identifier if readers are intended to copy from the document.
+In these cases, consider using the `sh` language identifier.
