@@ -190,8 +190,58 @@ Try to ensure that failures in spawned processes halt execution by default.)
 
 ### Consider using the `#!/bin/sh` shebang.
 
-`/bin/sh` might not be present on some systems, and corresponds to different shells on different systems, such as `dash` in Debian or `bash` in Fedora.
-But so far, we have not encountered systems where `/bin/sh` is not a reasonable shell.
+You require a shell to run shell scripts.
+Different systems can have different shells installed to different paths.
+`/bin/sh` should be present on most systems.
+
+However, `/bin/sh` can be different shells and versions on different systems.
+For example, `/bin/sh` is `dash` in Debian but `bash` in Fedora.
+If you use the `#!/bin/sh` shebang, then you should try to avoid shell features that are not present on most systems' `/bin/sh`.
+
+"Bashism" is a common term to describe those features, because `bash` is a very common shell to be `/bin/sh`, and `bash` has many features not present on other shells.
+
+#### Bashisms to avoid
+
+##### The `source` utility
+
+`source foo` on Bash runs the `foo` script in the current directory.
+Contrary to `./foo`, the script is executed in the current environment, so you can use `source` to set environment variables.
+
+However, some shells such as `dash` in Debian only provide the period (`.`) utility.
+`.` also resolves the script to run using the `PATH` variable and does not include the current directory in the resolution.
+
+Consider writing:
+
+```
+. ./foo   # to source a script in the current directory
+. foo/bar # to source a script using other relative paths
+```
+
+### Avoid implementation-specific utility behavior
+
+There are different implementations of basic command-line utilities such as `echo`.
+
+The behavior between different implementations of those tools can differ.
+
+Avoid behaviors that are not common across most implementations.
+
+##### `echo`
+
+The `echo` utility can have different behaviors regarding escape sequences.
+
+```console
+$ /bin/dash -c "/bin/echo '\n'"
+\n
+$ /bin/bash -c "/bin/echo '\n'"
+\n
+$ /bin/dash -c "echo '\n'"
+
+
+$ /bin/bash -c "echo '\n'"
+\n
+```
+
+`printf` is an alternative tool that can be used for similar purposes, but that in general has more uniform behavior.
 
 ### Use alternative systems to test for portability
 
