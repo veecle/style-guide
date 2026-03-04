@@ -13,6 +13,7 @@ runs:
         additional_permissions: |
           actions: read
         claude_args: |
+          --model opus
           --add-dir "${{ github.action_path }}/../../.."
           --append-system-prompt "
             Read @${{ github.action_path }}/../../../.agents/rules/shared/AGENTS.md for organizational guidelines.
