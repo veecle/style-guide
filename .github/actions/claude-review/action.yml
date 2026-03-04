@@ -86,6 +86,7 @@ runs:
           post a brief note like "✅ Review complete - no new issues found".
 
         claude_args: |
+          --model opus
           --add-dir "${{ github.action_path }}/../../.."
           --add-dir "${{ runner.temp }}/claude-tmp"
           --append-system-prompt "
