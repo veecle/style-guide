@@ -83,6 +83,7 @@ runs:
           accuracy, content quality, and structural organization according to your established review priorities.
 
           Use `${{ runner.temp }}/claude-tmp` to store temporary files
+          `dep-diff.sh` is at `${{ github.action_path }}/dep-diff.sh`
 
           To send top-level comments write them to a temporary file first,
           then use `gh pr comment --body-file the-temp-file.txt` (avoids shell backtick/quote escaping issues).
