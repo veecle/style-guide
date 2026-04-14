@@ -92,3 +92,28 @@ Apply relevant areas based on repository content type - code repositories focus 
 - Additional cross-references between sections
 - Minor markdown formatting improvements
 - Enhanced examples or more detailed explanations
+
+## Dependency Update Reviews
+
+**When to apply:** PRs containing version bumps in dependency manifests or lockfiles, typically opened by dependabot or renovate.
+
+### Workflow
+
+1. **Extract upstream repo and refs** from the PR body — dependabot/renovate include the GitHub repository and version tags in the PR description.
+2. **Fetch upstream changes** using the `dep-diff.sh` script:
+   ```
+   dep-diff.sh <owner/repo> <old-ref> <new-ref> <tmp-dir>
+   ```
+   This writes two files and prints their paths and line counts.
+3. **Read the `.log` file first** to understand scope: how many commits, what areas were touched, whether the change is focused or sprawling.
+4. **Read the `.diff` file** to audit actual source changes.
+   For large diffs, use the `.log` to identify areas of concern and selectively read relevant sections of the `.diff` — focus on public API surface, build configuration, and security-sensitive files.
+
+### What to Audit
+
+- **Breaking API changes** that could affect consuming code
+- **Language specific concerns** e.g. `unsafe` code in Rust
+- **Build scripts** — new or modified `build.rs`, `Makefile`, post-install scripts, or similar
+- **New dependencies** added by the upstream project (check their `Cargo.toml`, `package.json`, etc.)
+- **Unexpected scope** — changes unrelated to the stated purpose of the release
+- **Supply chain concerns** — binary blobs, obfuscated code, pre-built artifacts

@@ -108,6 +108,7 @@ runs:
             Bash(gh pr diff:*),
             Bash(gh pr view:*),
             Bash(${{ env.GH_API_COMMENTS_COMMAND }}),
+            Bash(${{ github.action_path }}/dep-diff.sh:*),
             Write,
           "
 
