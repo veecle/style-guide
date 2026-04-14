@@ -96,6 +96,10 @@ runs:
           --model opus
           --add-dir "${{ github.action_path }}/../../.."
           --add-dir "${{ runner.temp }}/claude-tmp"
+          # Workaround for <https://github.com/anthropics/claude-code-action/issues/1215>, since we can only have one
+          # additional directory, make it the runner root. The other paths are like `/home/runner/work/_actions/...`,
+          # `/home/runner/work/_temp/...` when running on GitHub-hosted runners
+          --add-dir "/home/runner/work"
           --append-system-prompt "
             Read @${{ github.action_path }}/../../../.agents/rules/shared/AGENTS.md for organizational guidelines.
           "
