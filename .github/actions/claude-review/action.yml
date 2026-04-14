@@ -26,6 +26,7 @@ runs:
           echo "::notice::Current workflow file ($workflow_file_path) changed - skipping review"
         else
           echo "workflow-changed=false" >> $GITHUB_OUTPUT
+          echo "style-guide-base=$(realpath ${{ github.action_path }}/../../..)" >> $GITHUB_OUTPUT
         fi
       env:
         GH_TOKEN: ${{ github.token }}
@@ -54,7 +55,8 @@ runs:
           PR NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
 
           Please conduct a thorough code review of this pull request.
-          Make sure to follow the guidelines in @${{ github.action_path }}/../../../.agents/rules/shared/code-review.md
+          Make sure to follow the guidelines in
+          @${{ steps.checkout-pr.outputs.style-guide-base  }}/.agents/rules/shared/code-review.md
 
           Note: The PR branch is already checked out in the current working directory.
 
@@ -94,10 +96,11 @@ runs:
 
         claude_args: |
           --model opus
-          --add-dir "${{ github.action_path }}/../../.."
+          --add-dir "${{ steps.checkout-pr.outputs.style-guide-base }}"
           --add-dir "${{ runner.temp }}/claude-tmp"
           --append-system-prompt "
-            Read @${{ github.action_path }}/../../../.agents/rules/shared/AGENTS.md for organizational guidelines.
+            Read @${{ steps.checkout-pr.outputs.style-guide-base }}/.agents/rules/shared/AGENTS.md
+            for organizational guidelines.
           "
           --allowedTools "
             mcp__github_ci__get_ci_status,
