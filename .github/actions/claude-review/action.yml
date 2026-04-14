@@ -2,6 +2,10 @@ inputs:
   anthropic_api_key:
     description: Anthropic API key for Claude
     required: true
+  show_full_output:
+    description: Enable the option of the same name from claude-code-action (and summary)
+    required: false
+    default: false
 
 runs:
   using: composite
@@ -38,6 +42,9 @@ runs:
       if: steps.checkout-pr.outputs.workflow-changed != 'true'
       with:
         anthropic_api_key: ${{ inputs.anthropic_api_key }}
+
+        display_report: ${{ inputs.show_full_output }}
+        show_full_output: ${{ inputs.show_full_output }}
 
         additional_permissions: |
           actions: read
