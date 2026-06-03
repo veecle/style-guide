@@ -6,6 +6,10 @@ inputs:
     description: Enable the option of the same name from claude-code-action (and summary)
     required: false
     default: false
+  allowed_bots:
+    description: Comma-separated list, forwarded to the option of the same name from claude-code-action
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -46,6 +50,8 @@ runs:
 
         display_report: ${{ inputs.show_full_output }}
         show_full_output: ${{ inputs.show_full_output }}
+
+        allowed_bots: ${{ inputs.allowed_bots }}
 
         additional_permissions: |
           actions: read
