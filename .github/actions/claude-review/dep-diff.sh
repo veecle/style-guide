@@ -42,6 +42,11 @@ if ! gh api "repos/${repo}/compare/${base}...${head}" \
   > "$diff_file" 2>/dev/null; then
   echo "Error: failed to fetch diff for ${repo} ${base}...${head}" >&2
   echo "Check that the repository and refs exist." >&2
+  echo "" >&2
+  echo "Available tags on ${repo}:" >&2
+  if ! gh api "repos/${repo}/tags" --paginate --jq '.[].name' >&2; then
+    echo "  (failed to list tags)" >&2
+  fi
   rm -f "$diff_file"
   exit 1
 fi
