@@ -102,7 +102,7 @@ runs:
           post a brief note like "✅ Review complete - no new issues found".
 
         claude_args: |
-          --model opus
+          --model fable
           --add-dir "${{ steps.checkout-pr.outputs.style-guide-base }}"
           --add-dir "${{ runner.temp }}/claude-tmp"
           --append-system-prompt "

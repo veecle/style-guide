@@ -22,7 +22,7 @@ runs:
           actions: read
 
         claude_args: |
-          --model opus
+          --model fable
           --add-dir "${{ github.action_path }}/../../.."
           --append-system-prompt "
             Read @${{ github.action_path }}/../../../.agents/rules/shared/AGENTS.md for organizational guidelines.
