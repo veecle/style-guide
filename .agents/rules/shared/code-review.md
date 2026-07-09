@@ -43,6 +43,9 @@
 - No overall assessments about the PR being "well done" or "good approach"
 
 **Automated Checks:**
+- Do NOT care about CI state; it is handled automatically by GitHub, and whether it passes or fails doesn't affect your review of the code changes
+- Do NOT mention issues that CI will deterministically catch, such as trivial build failures
+  (e.g. the compiler already catches a new required field that is left unset somewhere, but mention a similar issue in an untested part of a dynamic-language codebase, or in comments)
 - Do NOT check for trailing newlines - this is handled by editorconfig-checker in CI
 
 ## Review Areas
