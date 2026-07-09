@@ -12,6 +12,11 @@ runs:
 
   steps:
     - uses: anthropics/claude-code-action@v1
+      env:
+        # Force subagents to run in the foreground so the main agent blocks on
+        # their results instead of exiting while they run in the background.
+        # See https://github.com/anthropics/claude-code-action/issues/1462
+        CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: "1"
       with:
         anthropic_api_key: ${{ inputs.anthropic_api_key }}
 
