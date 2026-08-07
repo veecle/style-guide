@@ -106,9 +106,9 @@ runs:
           ${{ env.GH_API_COMMENTS_COMMAND }}
           ${{ github.action_path }}/dep-diff.sh ...
           ```
-          Every other command (including `git`, `cat`, `ls`, `grep`, `find`, pipes into other tools, etc.)
-          is denied and will fail. Use `Read`, `Grep`, `Glob` and the MCP tools instead,
-          and never try to work around a denied command.
+          Commands not listed above (including `git`, `cat`, `ls`, `grep`, `find`, pipes into other tools, etc.)
+          are not allowlisted: read-only commands may still run sandboxed, but anything else will be denied.
+          Prefer `Read`, `Write` and the MCP tools where possible, and never try to work around a denied command.
 
           To send top-level comments write them to a temporary file first,
           then use `gh pr comment --body-file the-temp-file.txt` (avoids shell backtick/quote escaping issues).
