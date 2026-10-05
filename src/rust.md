@@ -73,25 +73,67 @@ where
 
 Objectively deciding what constitutes "trivial" is impossible, thus `where` notation should be used for any bounds.
 
+## Workspace layout
+
+Never use a non-virtual workspace; use either a virtual workspace or a standalone crate.
+Separating the workspace-level config from the root crate makes reviewing changes clearer, and avoids the surprising default `default-members` behavior.
+Unless it is obvious from the start that a repository will never have more than one crate in it, start with a virtual workspace containing a single member crate in a subdirectory.
+
 ## Dependencies
 
-All dependencies should be specified at the workspace level with `default-features = false`, then referenced via `workspace = true` in crates with any needed features.
-For consistency, we use the inline-table syntax for both, the workspace and crate level.
+All dependencies should be specified at the workspace level with `default-features = false`, then referenced via `workspace = true` in crates.
+If we do want the `default` feature in a dependency, that should be explicitly enabled in the `features` list so we consistently use `default-features = false`.
+For a standalone crate, apply the same rules directly in `[dependencies]`.
 
 ```toml
-# Workspace:
+# Virtual workspace
 [workspace.dependencies]
-awesome = { version = "1.3.5", default-features = false}
-
-# Crate in workspace with no features:
-[dependencies]
-awesome = { workspace = true }
-
-# Crate in workspace with features:
-[dependencies]
-awesome = { workspace = true, features = ["secure-password", "civet"]}
-
-# Stand-alone crate:
-[dependencies]
-awesome = { version = "1.3.5", default-features = false, features = ["secure-password", "civet"]}
+awesome = { version = "0.0.0", default-features = false }
+eepy = { version = "0.0.0", default-features = false }
 ```
+
+```toml
+# Standalone crate
+[dependencies]
+awesome = { version = "0.0.0", default-features = false, features = ["default", "secure-password", "civet"] }
+eepy = { version = "0.0.0", default-features = false }
+```
+
+### Library workspace
+
+For a workspace that publishes multiple libraries for external use, all required features should be applied at the crate level so each published crate only enables what it needs.
+This includes workspaces that publish libraries but also have some published or internal binaries.
+
+For consistency, we use the inline-table syntax whether there are features or not:
+
+```toml
+[dependencies]
+awesome = { workspace = true, features = ["default", "secure-password", "civet"] }
+eepy = { workspace = true }
+```
+
+### Binary workspace
+
+For a workspace that produces binaries, where library crates are only used internally, all normally required features should be specified at the workspace level.
+Dev-only features should remain per-crate so they don't leak into the final binaries.
+On nightly (or once stabilized), set [`resolver.feature-unification = "workspace"`][feature-unification] in the `.cargo/config.toml`.
+This minimizes rebuilds when building subsets of the workspace.
+
+Since most entries are only `workspace = true`, use the dotted-key form for those and the inline-table form when adding features.
+
+```toml
+[workspace.dependencies]
+awesome = { version = "0.0.0", default-features = false, features = ["default", "secure-password", "civet"] }
+eepy = { version = "0.0.0", default-features = false }
+```
+
+```toml
+[dependencies]
+awesome.workspace = true
+
+[dev-dependencies]
+awesome = { workspace = true, features = ["test-utils"] }
+eepy.workspace = true
+```
+
+[feature-unification]: https://doc.rust-lang.org/cargo/reference/unstable.html#feature-unification
