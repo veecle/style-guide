@@ -50,9 +50,10 @@ For CI/CD integration, copy the workflow templates from this repository to enabl
    cp ~/sources/veecle/style-guide/.github/workflows/claude.yml .github/workflows/
    ```
 
-2. Add the required secret to your repository:
-   - Go to repository Settings > Secrets and variables > Actions
-   - Add `ANTHROPIC_API_KEY` with your API key
+2. Authentication uses [Workload Identity Federation](https://platform.claude.com/docs/en/manage-claude/wif-providers/github-actions):
+   the workflows exchange their GitHub Actions OIDC token for a short-lived Anthropic access token, so no API key secret is needed.
+   The federation rule and the `ANTHROPIC_FEDERATION_RULE_ID`, `ANTHROPIC_ORGANIZATION_ID` and `ANTHROPIC_SERVICE_ACCOUNT_ID` variables are configured at the organization level, so no per-repository setup is required.
+   If your repository still has an `ANTHROPIC_API_KEY` secret from the previous setup, remove it.
 
 The templates automatically:
 - Check out the style guide to access shared guidelines
