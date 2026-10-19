@@ -46,18 +46,22 @@ For CI/CD integration, copy the workflow templates from this repository to enabl
 
 1. Copy workflow files to your repository:
    ```bash
-   cp ~/sources/veecle/style-guide/.github/workflows/claude-review.yml .github/workflows/
+   cp ~/sources/veecle/style-guide/.github/workflows/claude-review.yaml .github/workflows/
    cp ~/sources/veecle/style-guide/.github/workflows/claude.yml .github/workflows/
    ```
 
 2. Authentication uses [Workload Identity Federation](https://platform.claude.com/docs/en/manage-claude/wif-providers/github-actions):
    the workflows exchange their GitHub Actions OIDC token for a short-lived Anthropic access token, so no API key secret is needed.
-   The federation rule and the `ANTHROPIC_FEDERATION_RULE_ID`, `ANTHROPIC_ORGANIZATION_ID` and `ANTHROPIC_SERVICE_ACCOUNT_ID` variables are configured at the organization level, so no per-repository setup is required.
+   The federation rule and the `ANTHROPIC_CLAUDE_REVIEW_FEDERATION_RULE_ID`, `ANTHROPIC_ORGANIZATION_ID` and `ANTHROPIC_CLAUDE_REVIEW_SERVICE_ACCOUNT_ID` variables are configured at the organization level, so no per-repository setup is required.
    If your repository still has an `ANTHROPIC_API_KEY` secret from the previous setup, remove it.
 
 The templates automatically:
 - Check out the style guide to access shared guidelines
 - Inject these guidelines into Claude via system prompts
+
+The `claude-review.yaml` template only calls the [reusable workflow](.github/workflows/reusable-claude-review.yaml) from `main` of this repository, which contains all the logic.
+The federation rule should pin the `job_workflow_ref` claim to `veecle/style-guide/.github/workflows/reusable-claude-review.yaml@refs/heads/main`, so only jobs defined in that workflow can obtain Anthropic tokens.
+Updates to the reusable workflow apply to all repositories without changing their copy of the template.
 
 #### Claude Reviews
 
