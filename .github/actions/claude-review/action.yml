@@ -1,7 +1,22 @@
 inputs:
+  anthropic_federation_rule_id:
+    description: Anthropic workload identity federation rule ID (`fdrl_...`)
+    required: false
+    default: ""
+  anthropic_organization_id:
+    description: Anthropic organization ID used for workload identity federation
+    required: false
+    default: ""
+  anthropic_service_account_id:
+    description: Anthropic service account ID (`svac_...`) used for workload identity federation
+    required: false
+    default: ""
   anthropic_api_key:
-    description: Anthropic API key for Claude
-    required: true
+    description: >-
+      Deprecated: Anthropic API key for Claude, use the workload identity federation inputs instead.
+      Takes precedence over federation when set.
+    required: false
+    default: ""
   show_full_output:
     description: Enable the option of the same name from claude-code-action (and summary)
     required: false
@@ -50,6 +65,9 @@ runs:
       # `claude-code-action` fails if the workflow file changes.
       if: steps.checkout-pr.outputs.workflow-changed != 'true'
       with:
+        anthropic_federation_rule_id: ${{ inputs.anthropic_federation_rule_id }}
+        anthropic_organization_id: ${{ inputs.anthropic_organization_id }}
+        anthropic_service_account_id: ${{ inputs.anthropic_service_account_id }}
         anthropic_api_key: ${{ inputs.anthropic_api_key }}
 
         display_report: ${{ inputs.show_full_output }}
