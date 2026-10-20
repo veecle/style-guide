@@ -1,0 +1,75 @@
+name: reusable-claude-review
+
+# Reusable workflow running the Claude review, called from `claude-review.yaml` in each repository.
+#
+# The Anthropic workload identity federation rule trusts the `job_workflow_ref` OIDC claim of this workflow
+# (`veecle/style-guide/.github/workflows/reusable-claude-review.yaml@refs/heads/main`) rather than the calling
+# workflows.
+# Callers cannot add steps to the jobs in here, so everything that runs with the OIDC token is controlled by this
+# file and the actions it references.
+#
+# Keep it that way: never add inputs that end up being executed (scripts, commands, action references).
+
+on:
+  workflow_call:
+    inputs:
+      show_full_output:
+        description: Enable the option of the same name from claude-code-action (and summary)
+        type: boolean
+        required: false
+        default: false
+      allowed_bots:
+        description: Comma-separated list, forwarded to the option of the same name from claude-code-action
+        type: string
+        required: false
+        default: ""
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+
+    # Callers choose the triggering events, so this guard is part of the trust boundary and must reject anything
+    # unexpected (e.g. `pull_request_target`).
+    if: |
+      (
+        github.event_name == 'pull_request'
+        && !github.event.pull_request.draft
+        && github.event.pull_request.head.repo.full_name == github.repository
+        && github.actor != 'dependabot[bot]'
+      )
+      || (
+        github.event_name == 'issue_comment'
+        && github.event.issue.pull_request
+        && contains(github.event.comment.body, '/claude-review')
+        && github.event.comment.user.type != 'Bot'
+      )
+
+    permissions:
+      contents: read
+      pull-requests: read
+      id-token: write
+      actions: read
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: veecle/style-guide/.github/actions/claude-review@main
+        with:
+          # Configuration variables resolve against the calling repository (including organization variables).
+          # The rule and service account are specific to this workflow, the organization is shared.
+          anthropic_federation_rule_id: ${{ vars.ANTHROPIC_CLAUDE_REVIEW_FEDERATION_RULE_ID }}
+          anthropic_organization_id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
+          anthropic_service_account_id: ${{ vars.ANTHROPIC_CLAUDE_REVIEW_SERVICE_ACCOUNT_ID }}
+          show_full_output: ${{ inputs.show_full_output }}
+          allowed_bots: ${{ inputs.allowed_bots }}
+
+  minimize-old-claude-comments:
+    runs-on: ubuntu-latest
+    needs: review
+    if: always() && needs.review.result == 'success'
+
+    permissions:
+      pull-requests: write
+
+    steps:
+      - uses: veecle/style-guide/.github/actions/minimize-old-claude-comments@main
