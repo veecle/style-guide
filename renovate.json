@@ -1,0 +1,21 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "schedule": ["* * * * 3"],
+  "minimumReleaseAge": "2 days",
+  "automerge": true,
+  "nix": {
+    "enabled": true
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["* * * * 4"]
+  },
+  "packageRules": [
+    {
+      "description": "Self-references track `main` so consumers always get the latest shared actions",
+      "matchDepNames": ["veecle/style-guide"],
+      "enabled": false
+    }
+  ]
+}
