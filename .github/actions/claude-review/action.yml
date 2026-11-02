@@ -123,9 +123,13 @@ runs:
           gh pr view ...
           ${{ env.GH_API_COMMENTS_COMMAND }}
           ${{ github.action_path }}/dep-diff.sh ...
+          git describe ...
+          git diff ...
+          git log ...
+          git tag --list ...
           ```
-          Commands not listed above (including `git`, `cat`, `ls`, `grep`, `find`, pipes into other tools, etc.)
-          are not allowlisted: read-only commands may still run sandboxed, but anything else will be denied.
+          Commands not listed above (including other `git` subcommands, `cat`, `ls`, `grep`, `find`, pipes into other
+          tools, etc.) are not allowlisted: read-only commands may still run sandboxed, but others will be denied.
           Prefer `Read`, `Write` and the MCP tools where possible, and never try to work around a denied command.
 
           To send top-level comments write them to a temporary file first,
@@ -154,6 +158,10 @@ runs:
             Bash(gh pr view:*),
             Bash(${{ env.GH_API_COMMENTS_COMMAND }}),
             Bash(${{ github.action_path }}/dep-diff.sh:*),
+            Bash(git describe:*),
+            Bash(git diff:*),
+            Bash(git log:*),
+            Bash(git tag --list:*),
             Write,
           "
 
