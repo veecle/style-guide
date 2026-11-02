@@ -53,7 +53,7 @@ runs:
     - shell: bash
       run: mkdir -p "${{ runner.temp }}/claude-tmp"
 
-    - uses: anthropics/claude-code-action@v1
+    - uses: anthropics/claude-code-action@d535f5172dec02b204866b393d6b20b9b2aaf98d  # v1.0.266
       env:
         # Force subagents to run in the foreground so the main agent blocks on
         # their results instead of exiting while they run in the background.
