@@ -16,9 +16,12 @@ runs:
             .filter(comment => comment.user.login === 'claude[bot]')
             .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
 
-          // Also grab all the comments that triggered reviews.
+          // Also grab all the comments that triggered reviews, mirroring the trigger guard in
+          // `reusable-claude-review.yaml`: `/claude-review` at the start of the comment, from a non-bot user.
+          // The comparison is case-insensitive, like `startsWith` in workflow expressions.
+          // This avoids matching mentions like `.github/actions/claude-review/action.yml`.
           const triggerComments = comments
-            .filter(comment => comment.body.includes('/claude-review'))
+            .filter(comment => comment.user.type !== 'Bot' && comment.body.toLowerCase().startsWith('/claude-review'))
 
           // Skip the last (most recent) claude comment.
           const commentsToMinimize = claudeComments.slice(0, -1).concat(triggerComments)
