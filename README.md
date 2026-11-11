@@ -57,7 +57,7 @@ To enable automated Claude reviews on pull requests in your repository:
 The review workflow:
 
 - Automatically triggers on opened and ready-for-review pull requests
-- Can be requested on any pull request, by including `/claude-review` in a comment, any additional message provided will be included in the prompt, for example:
+- Can be requested on any pull request, by starting a comment with `/claude-review`, any additional message provided will be included in the prompt, for example:
   ```
   /claude-review with extra focus on the public API consistency
   ```
