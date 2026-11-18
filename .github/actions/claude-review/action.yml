@@ -140,7 +140,10 @@ runs:
           If all issues have been addressed or already noted,
           post a brief note like "✅ Review complete - no new issues found".
 
+        # Pin the permission mode: since v1.0.273 `claude-code-action` defaults to `auto` unless e.g.
+        # `allowed_bots` is set, which would let tools outside `--allowedTools` run for some callers.
         claude_args: |
+          --permission-mode default
           --model fable
           --add-dir "${{ steps.checkout-pr.outputs.style-guide-base }}"
           --add-dir "${{ runner.temp }}/claude-tmp"
