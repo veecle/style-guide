@@ -72,6 +72,11 @@ runs:
     - uses: cachix/install-nix-action@382a9ed9481c7c1f94f68b72ef105b3417c73877  # v32.1.0
       if: steps.detect-lynk.outputs.uses-lynk == 'true'
       continue-on-error: true
+      with:
+        # Binary cache populated by lynk's CI, see `lynk` in the style guide's `flake.nix`.
+        extra_nix_config: |
+          extra-substituters = https://lynk.cachix.org
+          extra-trusted-public-keys = lynk.cachix.org-1:V3B7U9dBI5tqI+ort0xxOpa7kfxQK+g1t3r7VxYLrh8=
 
     # Built from the style guide's own flake and lock, never from the PR checkout: the reviewed branch must not be
     # able to choose what runs alongside the OIDC token.

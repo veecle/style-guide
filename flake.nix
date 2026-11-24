@@ -4,12 +4,9 @@
     flake-utils.url = "github:numtide/flake-utils";
 
     # Used by the Claude review action, which builds it from the style guide's checkout so the reviewed PR cannot
-    # influence which version runs.
-    lynk = {
-      url = "github:vE5li/lynk";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
-    };
+    # influence which version runs. Its inputs are deliberately not overridden, so it matches what lynk's CI pushes to
+    # the `lynk.cachix.org` binary cache.
+    lynk.url = "github:vE5li/lynk";
   };
 
   outputs = {
