@@ -96,6 +96,16 @@ Apply relevant areas based on repository content type - code repositories focus 
 - Minor markdown formatting improvements
 - Enhanced examples or more detailed explanations
 
+## Linked Documentation Reviews
+
+**When to apply:** repositories whose documentation and code comments link to the code with [lynk](https://github.com/vE5li/lynk), recognizable by `lynk:` links, `<!-- lynk ... -->` maps or `.lynkignore` files.
+
+Broken links are caught by `lynk lint` in CI, so do not check or report them.
+
+1. **Run `gh pr diff | lynk affected`** and reread the text at every link it lists: report text the change made wrong but left untouched.
+2. **Follow links with `lynk resolve`** and find what refers to changed code with `lynk backlinks`, instead of searching for names.
+3. **Check unlinked references to the code against the repository's guidelines**: where they require links, flag prose that names parts of the code base without one.
+
 ## Dependency Update Reviews
 
 **When to apply:** PRs containing version bumps in dependency manifests or lockfiles, typically opened by dependabot or renovate.

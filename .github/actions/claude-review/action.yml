@@ -53,6 +53,37 @@ runs:
     - shell: bash
       run: mkdir -p "${{ runner.temp }}/claude-tmp"
 
+    # Only repositories linking their documentation with lynk (see `lynk` in the style guide's `flake.nix`) get it.
+    # The excluded paths only describe the syntax, they would otherwise match when reviewing the style guide itself.
+    - shell: bash
+      id: detect-lynk
+      if: steps.checkout-pr.outputs.workflow-changed != 'true'
+      run: |
+        if git ls-files ':(glob)**/.lynkignore' | grep -q . \
+          || git grep -qE '\]\(lynk:|\]: lynk:|<!-- lynk ' -- ':!.github/actions/claude-review' ':!.agents/rules/shared'
+        then
+          echo "uses-lynk=true" >> $GITHUB_OUTPUT
+        else
+          echo "uses-lynk=false" >> $GITHUB_OUTPUT
+        fi
+
+    # Failing to provide lynk degrades to a review without it instead of failing the review: the prompt only mentions
+    # lynk when `build-lynk` succeeded.
+    - uses: cachix/install-nix-action@382a9ed9481c7c1f94f68b72ef105b3417c73877  # v32.1.0
+      if: steps.detect-lynk.outputs.uses-lynk == 'true'
+      continue-on-error: true
+
+    # Built from the style guide's own flake and lock, never from the PR checkout: the reviewed branch must not be
+    # able to choose what runs alongside the OIDC token.
+    - shell: bash
+      id: build-lynk
+      if: steps.detect-lynk.outputs.uses-lynk == 'true'
+      continue-on-error: true
+      working-directory: ${{ runner.temp }}
+      run: |
+        nix build "path:${{ steps.checkout-pr.outputs.style-guide-base }}#lynk" --out-link "${{ runner.temp }}/lynk"
+        echo "${{ runner.temp }}/lynk/bin" >> $GITHUB_PATH
+
     - uses: anthropics/claude-code-action@f3b070c88125d33dbae5653df5f143101d4ea9dc  # v1.0.276
       env:
         # Force subagents to run in the foreground so the main agent blocks on
@@ -128,8 +159,23 @@ runs:
           git log ...
           git tag --list ...
           ```
+
+          ${{
+            steps.build-lynk.outcome == 'success'
+            && '
+              This repository links its documentation to the code with `lynk`, so you may also run:
+              ```
+              lynk resolve ...
+              lynk backlinks ...
+              gh pr diff | lynk affected
+              lynk context ...
+              ```
+            '
+            || ''
+          }}
           Commands not listed above (including other `git` subcommands, `cat`, `ls`, `grep`, `find`, pipes into other
-          tools, etc.) are not allowlisted: read-only commands may still run sandboxed, but others will be denied.
+          tools than the ones listed, etc.) are not allowlisted: read-only commands may still run sandboxed, but
+          others will be denied.
           Prefer `Read`, `Write` and the MCP tools where possible, and never try to work around a denied command.
 
           To send top-level comments write them to a temporary file first,
@@ -142,6 +188,8 @@ runs:
 
         # Pin the permission mode: since v1.0.273 `claude-code-action` defaults to `auto` unless e.g.
         # `allowed_bots` is set, which would let tools outside `--allowedTools` run for some callers.
+        # The `lynk` entries are always present but harmless when `lynk` is not on `PATH`; lynk rejects `--root` after
+        # the subcommand, so they cannot point it outside the checkout.
         claude_args: |
           --permission-mode default
           --model fable
@@ -165,6 +213,10 @@ runs:
             Bash(git diff:*),
             Bash(git log:*),
             Bash(git tag --list:*),
+            Bash(lynk resolve:*),
+            Bash(lynk backlinks:*),
+            Bash(lynk affected:*),
+            Bash(lynk context:*),
             Write,
           "
 
