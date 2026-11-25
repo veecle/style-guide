@@ -38,8 +38,6 @@
         veecle-utilities.flakeModules.nix-lint
       ];
 
-      # Instead of each module having to use some number of `../`'s to reference the repository root,
-      # pass down a nix path they can construct sources from.
       _module.args.root = ./.;
 
       systems = [
